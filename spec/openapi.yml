@@ -1,0 +1,258 @@
+openapi: 3.0.2
+
+info:
+  title: Sur Qui Ça Tombe ?
+  version: "0.0.1"
+  description: TODO
+  contact:
+    name: API Support
+    email: dsi-system@ac-versailles.fr
+    url: https://sqct.in.ac-versailles.fr
+
+components:
+  parameters:
+    filters:
+      in: query
+      name: filters
+      description: The fields of the response to filter by
+      required: false
+      schema:
+        type: object
+        default: {}
+      style: form
+      explode: true
+    user_id:
+      in: path
+      name: user_id
+      required: true
+      description: User LDAP nsUniqueId
+      schema:
+        type: string
+    toss_id:
+      in: path
+      name: toss_id
+      required: true
+      description: Id of the toss
+      schema:
+        type: string
+  requestBodies: {}
+  responses:
+    BadRequest:
+      description: Malformed request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    Unauthorized:
+      description: Unauthenticated user
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    Forbidden:
+      description: Insufficient rights
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+    NotFound:
+      description: The requested resource has not been found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        error_description:
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+          example: pnom
+        name:
+          type: string
+          example: John doe
+        tosses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Toss"
+    Toss:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+          example: 2e8251d8-8a81-4467-a0e8-85fcc4dc7b84
+        name:
+          type: string
+          example: mco semaine 12 - 2020
+        excludes:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        elected:
+          $ref: "#/components/schemas/User"
+    TossPost:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+          example: 2e8251d8-8a81-4467-a0e8-85fcc4dc7b84
+        name:
+          type: string
+          example: mco semaine 12 - 2020
+        excludes:
+          type: array
+          items:
+            type: string
+            example: jdoe
+paths:
+  /users:
+    get:
+      # tags: [user]
+      description: |
+        Gets the users.
+      summary: Get users
+      operationId: api.users.search
+      parameters:
+        - $ref: "#/components/parameters/filters"
+      responses:
+        "200":
+          description: The requested users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /users/{user_id}:
+    get:
+      # tags: [user]
+      description: |
+        Gets a user.
+      summary: Get a user
+      operationId: api.users.get
+      parameters:
+        - $ref: "#/components/parameters/user_id"
+      responses:
+        "200":
+          description: The requested user
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /toss:
+    get:
+      # tags: [user]
+      description: |
+        Gets the tosses.
+      summary: Get tosses.
+      operationId: api.tosses.search
+      parameters:
+        - $ref: "#/components/parameters/filters"
+      responses:
+        "200":
+          description: The requested tosses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Toss"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      # tags: [admin]
+      description: Creates a toss
+      summary: Add a new toss
+      operationId: api.tosses.post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TossPost"
+      responses:
+        "201":
+          description: Toss created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Toss"
+          headers:
+            Location:
+              description: Created toss URI
+              schema:
+                type: string
+                format: uri
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /toss/{toss_id}:
+    get:
+      # tags: [user]
+      description: |
+        Gets details about a toss.
+      summary: Get details about a toss
+      operationId: api.tosses.get
+      parameters:
+        - $ref: "#/components/parameters/toss_id"
+      responses:
+        "200":
+          description: The requested toss
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Toss"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      # tags: [superadmin]
+      description: |
+        Deletes a toss.
+      summary: Delete a toss
+      operationId: api.tosses.delete
+      parameters:
+        - $ref: "#/components/parameters/toss_id"
+      responses:
+        "204":
+          description: Successful deletion
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
