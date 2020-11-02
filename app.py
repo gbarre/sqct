@@ -1,5 +1,4 @@
 import os
-from config import Config
 import connexion
 from flask_sqlalchemy import SQLAlchemy
 from config import DevelopmentConfig
@@ -18,8 +17,15 @@ migrate = Migrate()
 
 def create_app():
 
-    connex_app =  connexion.App(__name__, specification_dir=os.path.join(basedir, 'spec'))
-    connex_app.add_api('openapi.yml', strict_validation=True,validate_responses=True)
+    connex_app = connexion.App(
+        __name__,
+        specification_dir=os.path.join(basedir, 'spec'),
+    )
+    connex_app.add_api(
+        'openapi.yml',
+        strict_validation=True,
+        validate_responses=True
+    )
     # connex_app.run(port=5000)
 
     app = connex_app.app

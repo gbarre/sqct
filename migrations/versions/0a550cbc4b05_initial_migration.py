@@ -1,8 +1,8 @@
 """initial migration
 
-Revision ID: 2aca645baccc
+Revision ID: 0a550cbc4b05
 Revises:
-Create Date: 2020-11-02 09:39:59.919300
+Create Date: 2020-11-02 19:20:28.865849
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import models
 
 
 # revision identifiers, used by Alembic.
-revision = '2aca645baccc'
+revision = '0a550cbc4b05'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,19 +22,17 @@ def upgrade():
     op.create_table('users',
     sa.Column('id', sa.String(length=32), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
-    sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id'),
     sa.UniqueConstraint('name')
     )
     op.create_table('tosses',
     sa.Column('id', models.GUID(), nullable=False),
-    sa.Column('elected', sa.Text(), nullable=False),
-    sa.Column('user_id', sa.String(length=32), nullable=True),
+    sa.Column('elected', sa.String(length=32), nullable=True),
+    sa.Column('excludes', sa.String(length=255), nullable=True),
+    sa.Column('name', sa.String(length=255), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.Column('updated_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['elected'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
     )

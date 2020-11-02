@@ -99,24 +99,16 @@ components:
         excludes:
           type: array
           items:
-            $ref: "#/components/schemas/User"
-        elected:
-          $ref: "#/components/schemas/User"
-    TossPost:
-      type: object
-      properties:
-        id:
-          type: string
-          readOnly: true
-          example: 2e8251d8-8a81-4467-a0e8-85fcc4dc7b84
-        name:
-          type: string
-          example: mco semaine 12 - 2020
-        excludes:
-          type: array
-          items:
             type: string
             example: jdoe
+        elected:
+          type: string
+          example: jdoe
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          example : "2017-07-21T17:32:28Z"
 paths:
   /users:
     get:
@@ -162,7 +154,7 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
-  /toss:
+  /tosses:
     get:
       # tags: [user]
       description: |
@@ -177,7 +169,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Toss"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Toss"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -194,7 +188,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TossPost"
+              $ref: "#/components/schemas/Toss"
       responses:
         "201":
           description: Toss created
@@ -214,7 +208,7 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-  /toss/{toss_id}:
+  /tosses/{toss_id}:
     get:
       # tags: [user]
       description: |

@@ -1,9 +1,10 @@
 import uuid
 from datetime import datetime
 from app import db, ma
-from marshmallow import fields
+from marshmallow import fields, post_dump
 from sqlalchemy.types import TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID
+from ast import literal_eval
 
 
 class GUID(TypeDecorator):
@@ -59,35 +60,28 @@ class User(db.Model):
         cascade="all, delete, delete-orphan",
         single_parent=True,
     )
-    created_at = db.Column(
-        db.DateTime, default=datetime.utcnow
-    )
-    updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
 
 
 class Toss(db.Model):
     __tablename__ = "tosses"
     id = db.Column(GUID, nullable=False, unique=True,
                    default=uuid.uuid4, primary_key=True)
-    elected = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.String(32), db.ForeignKey(
+    elected = db.Column(db.String(32), db.ForeignKey(
         'users.id'), nullable=True)
+    excludes = db.Column(db.String(255), nullable=True)
+    name = db.Column(db.String(255), nullable=True)
     created_at = db.Column(
         db.DateTime, default=datetime.utcnow
-    )
-    updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     def __init__(self, **kwargs):
-        super().__init__(strict=True, **kwargs)
+        super().__init__(**kwargs)
 
     class Meta:
         model = User
+        include_relationships = False
         sqla_session = db.session
 
     id = ma.auto_field(dump_only=True)
@@ -96,18 +90,30 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         default=[],
         many=True,
     )
-    created_at = ma.auto_field(dump_only=True)
-    updated_at = ma.auto_field(dump_only=True)
 
 
 class TossSchema(ma.SQLAlchemyAutoSchema):
     def __init__(self, **kwargs):
-        super().__init__(strict=True, **kwargs)
+        super().__init__(**kwargs)
 
     class Meta:
         model = Toss
-        include_relationships = False
+        include_relationships = True
+        include_fk = True
         sqla_session = db.session
+        exclude = ('user',)
 
+    id = ma.auto_field(dump_only=True)
     created_at = ma.auto_field(dump_only=True)
-    updated_at = ma.auto_field(dump_only=True)
+
+    @post_dump()
+    def __post_dump(self, data, **kwargs):
+        if 'excludes' in data:
+            data['excludes'] = literal_eval(data['excludes'])
+        return data
+
+
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
+toss_schema = TossSchema()
+tosses_schema = TossSchema(many=True)
