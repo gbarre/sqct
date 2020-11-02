@@ -1,13 +1,8 @@
-import os
-import connexion
-from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
+from app import create_app
+from models import *
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+connex_app = create_app()
+app = connex_app.app
 
-db = SQLAlchemy()
-ma = Marshmallow()
-
-app =  connexion.App(__name__, specification_dir=os.path.join(basedir, 'spec'))
-app.add_api('openapi.yml', strict_validation=True,validate_responses=True)
-app.run(port=5000)
+if __name__ == "__main__":
+    app.run(use_reloader=False)

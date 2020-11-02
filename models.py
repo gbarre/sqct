@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from server import db, ma
+from app import db, ma
 from marshmallow import fields
 from sqlalchemy.types import TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID
@@ -47,14 +47,14 @@ class User(db.Model):
     __default_filter__ = "name"
 
     id = db.Column(  # LDAP UID
-        db.string(32),
+        db.String(32),
         nullable=False,
         unique=True,
         primary_key=True
     )
     name = db.Column(db.String(255), nullable=False, unique=True)
     tosses = db.relationship(
-        "Tosse",
+        "Toss",
         backref="user",
         cascade="all, delete, delete-orphan",
         single_parent=True,
@@ -72,7 +72,7 @@ class Toss(db.Model):
     id = db.Column(GUID, nullable=False, unique=True,
                    default=uuid.uuid4, primary_key=True)
     elected = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.string(32), db.ForeignKey(
+    user_id = db.Column(db.String(32), db.ForeignKey(
         'users.id'), nullable=True)
     created_at = db.Column(
         db.DateTime, default=datetime.utcnow
