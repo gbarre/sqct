@@ -24,7 +24,11 @@ def post():
     toss_data = request.get_json()
     # data = toss_input_schema.load(toss_data)
 
-    excludes = toss_data['excludes']
+    if 'excludes' in toss_data:
+        excludes = toss_data['excludes']
+    else:
+        excludes = []
+
     users = User.query.filter(User.id.notin_(excludes)).all()
 
     elected = random.choice(users)
