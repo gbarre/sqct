@@ -2,12 +2,13 @@ openapi: 3.0.2
 
 info:
   title: Sur Qui Ça Tombe ?
-  version: "0.0.1"
-  description: TODO
-  contact:
-    name: API Support
-    email: dsi-system@ac-versailles.fr
-    url: https://sqct.in.ac-versailles.fr
+  version: "0.1"
+  description: >
+    Une belle API qui permet de gérer une liste d'utilisateur et de réaliser des tirages au sort.<br />
+    Mais on ne sait pas sur qui ça va tomber ! ¯\_(ツ)_/¯
+
+servers:
+  - url: 'https://sqct.api.jrmv.net/v1'
 
 components:
   parameters:
@@ -68,10 +69,18 @@ components:
     Error:
       type: object
       properties:
-        error:
+        detail:
           type: string
-        error_description:
+          example: "The requested user 'toto' has not been found."
+        status:
           type: string
+          example: 404
+        title:
+          type: string
+          example: "Not Found"
+        type:
+          type: string
+          example: "about:blank"
     User:
       type: object
       properties:
@@ -104,11 +113,14 @@ components:
         elected:
           type: string
           example: jdoe
+          readOnly: true
         created_at:
           type: string
           format: date-time
           readOnly: true
           example : "2017-07-21T17:32:28Z"
+      required:
+        - name
 paths:
   /users:
     get:
