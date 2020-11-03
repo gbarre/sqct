@@ -60,6 +60,7 @@ class User(db.Model):
         cascade="all, delete, delete-orphan",
         single_parent=True,
     )
+    password = db.Column(db.String(255), nullable=True)
 
 
 class Toss(db.Model):
@@ -83,6 +84,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         model = User
         include_relationships = False
         sqla_session = db.session
+        exclude = ('password',)
 
     id = ma.auto_field(dump_only=True)
     tosses = fields.Nested(

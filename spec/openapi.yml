@@ -65,6 +65,15 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+  securitySchemes:
+    basic:
+      type: http
+      scheme: basic
+      x-basicInfoFunc: auth.basic_auth
+    admin:
+      type: http
+      scheme: basic
+      x-basicInfoFunc: auth.admin_auth
   schemas:
     Error:
       type: object
@@ -142,8 +151,8 @@ paths:
                   $ref: "#/components/schemas/User"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+      security:
+        - basic: ['secret']
   /users/{user_id}:
     get:
       # tags: [user]
@@ -162,10 +171,10 @@ paths:
                   $ref: "#/components/schemas/User"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+      security:
+        - basic: ['secret']
   /tosses:
     get:
       # tags: [user]
@@ -190,6 +199,8 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
+      security:
+        - basic: ['secret']
     post:
       # tags: [admin]
       description: Creates a toss
@@ -218,8 +229,8 @@ paths:
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+      security:
+        - basic: ['secret']
   /tosses/{toss_id}:
     get:
       # tags: [user]
@@ -238,10 +249,12 @@ paths:
                 $ref: "#/components/schemas/Toss"
         "400":
           $ref: "#/components/responses/BadRequest"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
+      security:
+        - basic: ['secret']
 
     delete:
       # tags: [superadmin]
@@ -262,3 +275,5 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+      security:
+        - admin: ['secret']
