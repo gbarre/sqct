@@ -10,6 +10,7 @@ def basic_auth(username, password, required_scopes=None):
 
     return None
 
+
 def admin_auth(username, password, required_scopes=None):
     user = User.query.get(username)
     if user is not None and user.password is not None and user.id == "gbarre2":
